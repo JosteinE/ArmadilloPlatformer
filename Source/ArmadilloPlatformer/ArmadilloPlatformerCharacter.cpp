@@ -45,6 +45,17 @@ AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
+// Called when the game starts or when spawned
+void AArmadilloPlatformerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Show system cursor
+	PcMouse = GetWorld()->GetFirstPlayerController();
+	PcMouse->bShowMouseCursor = true;
+	PcMouse->bEnableClickEvents = true;
+	PcMouse->bEnableMouseOverEvents = true;
+}
 //////////////////////////////////////////////////////////////////////////
 // Input
 

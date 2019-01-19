@@ -21,6 +21,9 @@ class AArmadilloPlatformerCharacter : public ACharacter
 
 protected:
 
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
@@ -42,4 +45,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	//Input variables
+	APlayerController* PcMouse;
 };

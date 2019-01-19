@@ -69,15 +69,14 @@ void AArmadilloPlatformerCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAxis("CameraRight", this, &AArmadilloPlatformerCharacter::MouseRight);
 	PlayerInputComponent->BindAxis("CameraUp", this, &AArmadilloPlatformerCharacter::MouseUp);
 
+	PlayerInputComponent->BindAction("LeftMouseBDown", IE_Pressed, this, &AArmadilloPlatformerCharacter::LeftMouseBDown);
+	PlayerInputComponent->BindAction("LeftMouseBDown", IE_Released, this, &AArmadilloPlatformerCharacter::LeftMouseBUp);
+	PlayerInputComponent->BindAction("RightMouseBDown", IE_Pressed, this, &AArmadilloPlatformerCharacter::RightMouseBDown);
+	PlayerInputComponent->BindAction("RightMouseBDown", IE_Released, this, &AArmadilloPlatformerCharacter::RightMouseBUp);
+
 	PlayerInputComponent->BindAction("ChangeMode", IE_Pressed, this, &AArmadilloPlatformerCharacter::ChangeCameraPerspective);
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AArmadilloPlatformerCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AArmadilloPlatformerCharacter::TouchStopped);
-}
-
-void AArmadilloPlatformerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Started!"));
 }
 
 void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
@@ -99,6 +98,25 @@ void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
 	}
 }
 
+void AArmadilloPlatformerCharacter::Tongue()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	FHitResult TraceResult(ForceInit);
+
+	if (PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel3, false, TraceResult)) 
+	{
+		FVector TongueDirection = GetActorLocation();
+		TongueDirection.Y -= TraceResult.ImpactPoint.Y;
+		TongueDirection.Z -= TraceResult.ImpactPoint.Z;
+
+		if (bLeftMouseBDown && TongueDirection.Size() < maxTongueRange)
+		{
+			//do rope things
+		}
+	}
+}
+
 void AArmadilloPlatformerCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
@@ -115,6 +133,26 @@ void AArmadilloPlatformerCharacter::MouseUp(float val)
 	AddControllerPitchInput(val * UGameplayStatics::GetWorldDeltaSeconds(this) * CameraTurnRate);
 }
 
+void AArmadilloPlatformerCharacter::LeftMouseBDown()
+{
+	bLeftMouseBDown = true;
+}
+
+void AArmadilloPlatformerCharacter::LeftMouseBUp()
+{
+	bLeftMouseBDown = false;
+}
+
+void AArmadilloPlatformerCharacter::RightMouseBDown()
+{
+	bRightMouseBDown = true;
+}
+
+void AArmadilloPlatformerCharacter::RightMouseBUp()
+{
+	bRightMouseBDown = false;
+}
+
 void AArmadilloPlatformerCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	// jump on any touch
@@ -125,4 +163,3 @@ void AArmadilloPlatformerCharacter::TouchStopped(const ETouchIndex::Type FingerI
 {
 	StopJumping();
 }
-

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 #include "ArmadilloPlatformerCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -29,6 +30,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called on each frame
+	void Tick(float deltaTime) override;
+
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
@@ -45,13 +49,13 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-	void BeginPlay() override;
-
-	void ChangeCameraPerspective();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraTurnRate{ 1.f };
+	float CameraTurnRate{ 100.f };
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bBallStance;
 
 	AArmadilloPlatformerCharacter();
 
@@ -62,4 +66,17 @@ public:
 
 	//Input variables
 	APlayerController* PcMouse;
+	float maxTongueRange = 1000;
+	bool bLeftMouseBDown;
+	bool bRightMouseBDown;
+
+	//Input Functions
+	void Tongue();
+
+	void LeftMouseBDown();
+	void LeftMouseBUp();
+	void RightMouseBDown();
+	void RightMouseBUp();
+	void ChangeStance();
+	void ChangeCameraPerspective();
 };

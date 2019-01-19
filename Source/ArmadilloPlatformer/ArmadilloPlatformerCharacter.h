@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 #include "ArmadilloPlatformerCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -63,4 +64,15 @@ public:
 
 	//Input variables
 	APlayerController* PcMouse;
+	float maxTongueRange = 1000;
+	bool bLeftMouseBDown;
+	bool bRightMouseBDown;
+
+	//Input Functions
+	void Tongue();
+
+	void LeftMouseBDown();
+	void LeftMouseBUp();
+	void RightMouseBDown();
+	void RightMouseBUp();
 };

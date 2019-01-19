@@ -4,6 +4,11 @@
 #include "ArmadilloPlatformerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
+float AArmadilloPlatformerGameMode::GetAngleBetween(const FVector& pos1, const FVector& pos2)
+{
+	return FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(pos1, pos2) / (pos1.Size() * pos2.Size())));
+}
+
 AArmadilloPlatformerGameMode::AArmadilloPlatformerGameMode()
 {
 	// set default pawn class to our Blueprinted character

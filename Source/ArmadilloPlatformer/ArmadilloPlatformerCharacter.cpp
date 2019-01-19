@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ArmadilloPlatformerGameMode.h"
 
 AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 {
@@ -57,6 +58,28 @@ void AArmadilloPlatformerCharacter::BeginPlay()
 	PcMouse->bEnableClickEvents = true;
 	PcMouse->bEnableMouseOverEvents = true;
 }
+void AArmadilloPlatformerCharacter::Tick(float deltaTime)
+{
+	if (ThirdpersonCam) {
+		CameraBoom->bUsePawnControlRotation = true;
+		/*FRotator cameraWorldRotation{ GetActorRotation() + CameraBoom->RelativeRotation };
+		UE_LOG(LogTemp, Warning, TEXT("Angle is %f"), AArmadilloPlatformerGameMode::GetAngleBetween(cameraWorldRotation.Quaternion().Vector(), GetControlRotation().Quaternion().Vector()));
+		if (AArmadilloPlatformerGameMode::GetAngleBetween(cameraWorldRotation.Quaternion().Vector(), GetControlRotation().Quaternion().Vector()) < 10.f) {
+			
+			CameraBoom->bUsePawnControlRotation = true;
+		}
+		else {
+			CameraBoom->SetWorldRotation(FRotator{ FQuat::FastLerp(cameraWorldRotation.Quaternion(), GetControlRotation().Quaternion(), 0.4f) }, true);
+		}*/
+	}
+	else {
+
+		CameraBoom->bUsePawnControlRotation = false;
+
+		CameraBoom->SetRelativeRotation(FRotator{ FQuat::FastLerp(CameraBoom->RelativeRotation.Quaternion(), DefaultCameraRotation.Quaternion(), 0.4f) }, true);
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoom->TargetArmLength, DefaultCameraDistance, 0.4f);
+	}
+}
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -74,29 +97,23 @@ void AArmadilloPlatformerCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindTouch(IE_Released, this, &AArmadilloPlatformerCharacter::TouchStopped);
 }
 
-void AArmadilloPlatformerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Started!"));
-}
-
 void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
 {
 	// CameraBoom
 	// SideViewCameraComponent
 
-	UE_LOG(LogTemp, Warning, TEXT("Switched modes!"));
+	// UE_LOG(LogTemp, Warning, TEXT("Switched modes!"));
 
 	ThirdpersonCam = !ThirdpersonCam;
 
-	CameraBoom->bUsePawnControlRotation = ThirdpersonCam;
+	/*CameraBoom->bUsePawnControlRotation = ThirdpersonCam;
 	if (ThirdpersonCam) {
 			
 	}
 	else {
 		CameraBoom->RelativeRotation = DefaultCameraRotation;
 		CameraBoom->TargetArmLength = DefaultCameraDistance;
-	}
+	}*/
 }
 
 void AArmadilloPlatformerCharacter::MoveRight(float Value)

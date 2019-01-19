@@ -29,6 +29,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called on each frame
+	void Tick(float deltaTime) override;
+
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
@@ -45,13 +48,11 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-	void BeginPlay() override;
-
 	void ChangeCameraPerspective();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraTurnRate{ 1.f };
+	float CameraTurnRate{ 100.f };
 
 	AArmadilloPlatformerCharacter();
 

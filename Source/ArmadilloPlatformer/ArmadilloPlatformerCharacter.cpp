@@ -74,7 +74,10 @@ void AArmadilloPlatformerCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAction("RightMouseBDown", IE_Pressed, this, &AArmadilloPlatformerCharacter::RightMouseBDown);
 	PlayerInputComponent->BindAction("RightMouseBDown", IE_Released, this, &AArmadilloPlatformerCharacter::RightMouseBUp);
 
-	PlayerInputComponent->BindAction("ChangeMode", IE_Pressed, this, &AArmadilloPlatformerCharacter::ChangeCameraPerspective);
+	PlayerInputComponent->BindAction("ChangeStance", IE_Pressed, this, &AArmadilloPlatformerCharacter::ChangeStance);
+
+	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &AArmadilloPlatformerCharacter::ChangeCameraPerspective);
+
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AArmadilloPlatformerCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AArmadilloPlatformerCharacter::TouchStopped);
 }
@@ -95,6 +98,18 @@ void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
 	else {
 		CameraBoom->RelativeRotation = DefaultCameraRotation;
 		CameraBoom->TargetArmLength = DefaultCameraDistance;
+	}
+}
+
+void AArmadilloPlatformerCharacter::ChangeStance()
+{
+	if (bBallStance)
+	{
+		bBallStance = false;
+	}
+	else
+	{
+		bBallStance = true;
 	}
 }
 
@@ -121,6 +136,13 @@ void AArmadilloPlatformerCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
 	AddMovementInput(FVector(0.f,-1.f,0.f), Value);
+
+/*	FRotator ballRotation(10.f, 0.f, 0.f);
+
+	if (bBallStance)
+	{
+		AddActorLocalRotation(ballRotation * Value);
+	}*/
 }
 
 void AArmadilloPlatformerCharacter::MouseRight(float val)

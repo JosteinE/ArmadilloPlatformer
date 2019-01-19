@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 {
@@ -22,9 +23,9 @@ AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bAbsoluteRotation = true; // Rotation of the character should not affect rotation of boom
 	CameraBoom->bDoCollisionTest = false;
-	CameraBoom->TargetArmLength = 500.f;
+	CameraBoom->TargetArmLength = DefaultCameraDistance;
 	CameraBoom->SocketOffset = FVector(0.f,0.f,75.f);
-	CameraBoom->RelativeRotation = FRotator(0.f,180.f,0.f);
+	CameraBoom->RelativeRotation = DefaultCameraRotation;
 
 	// Create a camera and attach to boom
 	SideViewCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("SideViewCamera"));
@@ -54,15 +55,53 @@ void AArmadilloPlatformerCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AArmadilloPlatformerCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("CameraRight", this, &AArmadilloPlatformerCharacter::MouseRight);
+	PlayerInputComponent->BindAxis("CameraUp", this, &AArmadilloPlatformerCharacter::MouseUp);
 
+	PlayerInputComponent->BindAction("ChangeMode", IE_Pressed, this, &AArmadilloPlatformerCharacter::ChangeCameraPerspective);
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AArmadilloPlatformerCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AArmadilloPlatformerCharacter::TouchStopped);
+}
+
+void AArmadilloPlatformerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Started!"));
+}
+
+void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
+{
+	// CameraBoom
+	// SideViewCameraComponent
+
+	UE_LOG(LogTemp, Warning, TEXT("Switched modes!"));
+
+	ThirdpersonCam = !ThirdpersonCam;
+
+	CameraBoom->bUsePawnControlRotation = ThirdpersonCam;
+	if (ThirdpersonCam) {
+			
+	}
+	else {
+		CameraBoom->RelativeRotation = DefaultCameraRotation;
+		CameraBoom->TargetArmLength = DefaultCameraDistance;
+	}
 }
 
 void AArmadilloPlatformerCharacter::MoveRight(float Value)
 {
 	// add movement in that direction
 	AddMovementInput(FVector(0.f,-1.f,0.f), Value);
+}
+
+void AArmadilloPlatformerCharacter::MouseRight(float val)
+{
+	AddControllerYawInput(val * UGameplayStatics::GetWorldDeltaSeconds(this) * CameraTurnRate);
+}
+
+void AArmadilloPlatformerCharacter::MouseUp(float val)
+{
+	AddControllerPitchInput(val * UGameplayStatics::GetWorldDeltaSeconds(this) * CameraTurnRate);
 }
 
 void AArmadilloPlatformerCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)

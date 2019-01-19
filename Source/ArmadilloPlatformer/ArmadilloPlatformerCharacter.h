@@ -30,6 +30,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called on each frame
+	void Tick(float deltaTime) override;
+
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
@@ -49,7 +52,7 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraTurnRate{ 1.f };
+	float CameraTurnRate{ 100.f };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bBallStance;

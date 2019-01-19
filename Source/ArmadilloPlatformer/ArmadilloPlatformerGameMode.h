@@ -13,6 +13,9 @@ class AArmadilloPlatformerGameMode : public AGameModeBase
 
 public:
 	AArmadilloPlatformerGameMode();
+
+	// Borrowed from myself
+	static float GetAngleBetween(const FVector& pos1, const FVector& pos2);
 };
 
 

@@ -49,11 +49,13 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-	void ChangeCameraPerspective();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float CameraTurnRate{ 100.f };
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bBallStance;
 
 	AArmadilloPlatformerCharacter();
 
@@ -75,4 +77,6 @@ public:
 	void LeftMouseBUp();
 	void RightMouseBDown();
 	void RightMouseBUp();
+	void ChangeStance();
+	void ChangeCameraPerspective();
 };

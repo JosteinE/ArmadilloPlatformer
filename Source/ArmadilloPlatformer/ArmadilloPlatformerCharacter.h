@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/CapsuleComponent.h"
+#include "../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
+#include "Runtime/Engine/Public/DrawDebugHelpers.h"
 #include "ArmadilloPlatformerCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -20,6 +23,12 @@ private:
 	/** Camera boom positioning the camera beside the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere)
+	class USceneComponent* AzimuthGimbal;
+
+	UPROPERTY(Category = Cable, VisibleAnywhere)
+	class UCableComponent* PlayerTongue;
 
 	bool ThirdpersonCam{ false };
 	const FRotator DefaultCameraRotation{ 0.f, 180.f, 0.f };
@@ -57,6 +66,27 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bBallStance;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bHooked;
+
+	UPROPERTY(EditAnywhere)
+	float BallMovementSpeed = 2000.0f;
+
+	UPROPERTY(EditAnywhere)
+	float BallAcceleration = 1500.0f;
+
+	UPROPERTY(EditAnywhere)
+	float BallDeceleration = 0.5f;
+
+	UPROPERTY(EditAnywhere)
+	float BallFriction = 0.5f;
+
+	UPROPERTY(EditAnywhere)
+	float MovementSpeed = 600.0f;
+
+	UPROPERTY(EditAnywhere)
+	float NormalAcceleration = 2048.0f;
+
 	AArmadilloPlatformerCharacter();
 
 	/** Returns SideViewCameraComponent subobject **/
@@ -69,14 +99,18 @@ public:
 	float maxTongueRange = 1000;
 	bool bLeftMouseBDown;
 	bool bRightMouseBDown;
+	FVector mouseHitLocation;
 
 	//Input Functions
-	void Tongue();
-
 	void LeftMouseBDown();
 	void LeftMouseBUp();
 	void RightMouseBDown();
 	void RightMouseBUp();
 	void ChangeStance();
 	void ChangeCameraPerspective();
+
+	void Tongue();
+	void Hooked();
+	void BreakTongue();
+	void Swing();
 };

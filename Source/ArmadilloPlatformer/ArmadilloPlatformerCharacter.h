@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ArmadilloPlatformerCharacter.generated.h"
 
@@ -26,7 +27,7 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere)
-	class USceneComponent* AzimuthGimbal;
+	class USpringArmComponent* TongueSpring;
 
 	UPROPERTY(Category = Cable, VisibleAnywhere)
 	class UCableComponent* PlayerTongue;
@@ -102,6 +103,7 @@ public:
 	bool bRightMouseBDown;
 	bool bIsJumping;
 	FVector mouseHitLocation;
+	FVector initialHookDistance;
 
 	//Input Functions
 	void LeftMouseBDown();

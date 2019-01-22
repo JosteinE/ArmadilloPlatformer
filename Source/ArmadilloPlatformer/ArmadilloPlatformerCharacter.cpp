@@ -14,6 +14,8 @@ AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
+	//GetMesh()->SetupAttachment(RootComponent);
+
 	// Don't rotate when the controller rotates.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -43,12 +45,21 @@ AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
-	//Create a Azimuth Gimbal (for horizontal Camera Rotation)
-	/*AzimuthGimbal = CreateDefaultSubobject<USceneComponent>(TEXT("AzimuthGimbal"));
-	AzimuthGimbal->bAbsoluteRotation = true;
-	AzimuthGimbal->SetupAttachment(RootComponent);*/
+	// Create tongue spring
+	/*
+	TongueSpring = CreateDefaultSubobject<USpringArmComponent>(TEXT("TongueSpring"));
+	TongueSpring->SetWorldLocation(FVector(0.f, 0.f, 0.f));
+	TongueSpring->SetupAttachment(RootComponent);
+	TongueSpring->TargetArmLength = 0.f;
+	TongueSpring->SocketOffset = (FVector(0.f, 0.f, 0.f));
+	TongueSpring->TargetOffset = (FVector(0.f, 0.f, 0.f));
+	TongueSpring->bDoCollisionTest = false;
+	TongueSpring->bAbsoluteLocation = true;
+	TongueSpring->bAbsoluteRotation = true;
+	GetMesh()->SetupAttachment(TongueSpring);
+	*/
 
-	// Create the tongue
+	// Create the tongue mesh
 	PlayerTongue = CreateDefaultSubobject<UCableComponent>(TEXT("Tongue")); //Added "CableComponent" in the Build.cs file to make the cable component work
 	PlayerTongue->SetWorldLocation(FVector(100.f, 0.f, 0.f));
 	PlayerTongue->bEnableCollision = false;
@@ -150,9 +161,11 @@ void AArmadilloPlatformerCharacter::ChangeCameraPerspective()
 
 void AArmadilloPlatformerCharacter::ChangeStance()
 {
-	if (bBallStance)
+	if (bBallStance && !bHooked)
 	{
 		bBallStance = false;
+		PlayerTongue->SetRelativeLocation(FVector(100.f, 0.f, 0.f));
+		PlayerTongue->EndLocation = FVector(100.f, 0.f, 0.f);
 		GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 		GetCharacterMovement()->MaxAcceleration = NormalAcceleration;
 		GetCharacterMovement()->BrakingDecelerationWalking = 2048;
@@ -161,6 +174,7 @@ void AArmadilloPlatformerCharacter::ChangeStance()
 	else
 	{
 		bBallStance = true;
+		PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 		GetCharacterMovement()->MaxWalkSpeed = BallMovementSpeed;
 		GetCharacterMovement()->MaxAcceleration = BallAcceleration;
 		GetCharacterMovement()->BrakingDecelerationWalking = BallDeceleration;
@@ -199,10 +213,14 @@ void AArmadilloPlatformerCharacter::Tongue()
 
 				FVector TraceImpactPoint = TraceResult.ImpactPoint; //
 				mouseHitLocation = TraceImpactPoint; // workaround. Game crashes otherwise
+				initialHookDistance = GetActorLocation() - mouseHitLocation;
 
 				PlayerTongue->bAttachEnd = true;
-				PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-				bBallStance = true;
+				if (!bBallStance)
+				{
+					ChangeStance();
+				}
+				GetCharacterMovement()->AirControl = 1.f;
 				bHooked = true; //Run Hooked() in tick
 				GetCharacterMovement()->bOrientRotationToMovement = false;
 			}
@@ -216,13 +234,9 @@ void AArmadilloPlatformerCharacter::Tongue()
 
 void AArmadilloPlatformerCharacter::BreakTongue()
 {
-	PlayerTongue->SetRelativeLocation(FVector(100.f, 0.f, 0.f));
-	PlayerTongue->EndLocation = FVector(100.f, 0.f, 0.f);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	PlayerTongue->CableLength = 50.f;
-	GetCharacterMovement()->AirControl = 2.f;
 	PlayerTongue->bAttachEnd = false;
-	//bBallStance = false;
+	PlayerTongue->CableLength = 50.f;
 	bHooked = false;
 }
 
@@ -254,21 +268,24 @@ void AArmadilloPlatformerCharacter::Hooked()
 
 	PlayerTongue->EndLocation = TongueDirection - PlayerLocation;
 	PlayerTongue->CableLength = FVector(TongueDirection - PlayerLocation).Size() - 300.f;
-	GetCharacterMovement()->AirControl = 1.f;
 	Swing();
 }
 
 void AArmadilloPlatformerCharacter::Swing()
 {
-	FVector swingVector = GetActorLocation() - mouseHitLocation;
-
-	//swingVector = (swingVector.Normalize(FMath::Acos(FVector::DotProduct(swingVector, GetVelocity())))) * -2
-
+	FVector swingVector = mouseHitLocation - GetActorLocation();
+	//GetVelocity() = FVector(0.f, 0.f, 0.f);
 	FVector normalizedSwingVector = swingVector;
 	normalizedSwingVector.Normalize();
-	swingVector = normalizedSwingVector * FVector::DotProduct(swingVector, GetVelocity()) * -2;
+	//swingVector = normalizedSwingVector * FVector::DotProduct(swingVector, GetVelocity()) * -2;
 	
-	GetCharacterMovement()->AddForce(swingVector);
+	GetCharacterMovement()->AddForce(swingVector * (GetWorld()->GetGravityZ() * -GetCharacterMovement()->GravityScale));
+
+	UE_LOG(LogTemp, Warning, TEXT("Gravity Z: %f"), GetWorld()->GetGravityZ());
+	UE_LOG(LogTemp, Warning, TEXT("G.Scale: %f"), GetCharacterMovement()->GravityScale);
+	UE_LOG(LogTemp, Warning, TEXT("Swing.Z: %f"), swingVector.Z);
+	UE_LOG(LogTemp, Warning, TEXT("Swing.Y: %f"), swingVector.Y);
+	UE_LOG(LogTemp, Warning, TEXT("Distance in Y: %f"), (GetActorLocation() - mouseHitLocation).Y);
 }
 
 void AArmadilloPlatformerCharacter::IsJumping()
@@ -276,13 +293,9 @@ void AArmadilloPlatformerCharacter::IsJumping()
 	bIsJumping = true;
 	Jump();
 
-	if (!bHooked)
+	if (bHooked)
 	{
-		PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-		PlayerTongue->CableLength = 0.f;
-	}
-	else
-	{
+		GetCharacterMovement()->Launch(FVector(0.f, GetInputAxisValue(TEXT("MoveRight"))*-1000.f, 1000.f));
 		BreakTongue();
 	}
 

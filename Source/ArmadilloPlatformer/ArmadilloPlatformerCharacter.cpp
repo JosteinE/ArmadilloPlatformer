@@ -51,7 +51,7 @@ AArmadilloPlatformerCharacter::AArmadilloPlatformerCharacter()
 	// Create the tongue
 	PlayerTongue = CreateDefaultSubobject<UCableComponent>(TEXT("Tongue")); //Added "CableComponent" in the Build.cs file to make the cable component work
 	PlayerTongue->SetWorldLocation(FVector(100.f, 0.f, 0.f));
-	PlayerTongue->bEnableCollision = true;
+	PlayerTongue->bEnableCollision = false;
 	PlayerTongue->bEnableStiffness = true;
 	PlayerTongue->bAttachEnd = false;
 	PlayerTongue->CableLength = 50;
@@ -203,7 +203,7 @@ void AArmadilloPlatformerCharacter::Tongue()
 				PlayerTongue->bAttachEnd = true;
 				PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 				bBallStance = true;
-				bHooked = true;
+				bHooked = true; //Run Hooked() in tick
 				GetCharacterMovement()->bOrientRotationToMovement = false;
 			}
 		}
@@ -222,7 +222,7 @@ void AArmadilloPlatformerCharacter::BreakTongue()
 	PlayerTongue->CableLength = 50.f;
 	GetCharacterMovement()->AirControl = 2.f;
 	PlayerTongue->bAttachEnd = false;
-	bBallStance = false;
+	//bBallStance = false;
 	bHooked = false;
 }
 
@@ -280,6 +280,10 @@ void AArmadilloPlatformerCharacter::IsJumping()
 	{
 		PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 		PlayerTongue->CableLength = 0.f;
+	}
+	else
+	{
+		BreakTongue();
 	}
 
 	bIsJumping = false;

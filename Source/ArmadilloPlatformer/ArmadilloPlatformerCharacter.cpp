@@ -110,8 +110,8 @@ void AArmadilloPlatformerCharacter::Tick(float deltaTime)
 void AArmadilloPlatformerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AArmadilloPlatformerCharacter::IsJumping);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &AArmadilloPlatformerCharacter::IsNotJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AArmadilloPlatformerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("CameraRight", this, &AArmadilloPlatformerCharacter::MouseRight);
 	PlayerInputComponent->BindAxis("CameraUp", this, &AArmadilloPlatformerCharacter::MouseUp);
@@ -201,6 +201,7 @@ void AArmadilloPlatformerCharacter::Tongue()
 				mouseHitLocation = TraceImpactPoint; // workaround. Game crashes otherwise
 
 				PlayerTongue->bAttachEnd = true;
+				PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 				bBallStance = true;
 				bHooked = true;
 				GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -215,6 +216,7 @@ void AArmadilloPlatformerCharacter::Tongue()
 
 void AArmadilloPlatformerCharacter::BreakTongue()
 {
+	PlayerTongue->SetRelativeLocation(FVector(100.f, 0.f, 0.f));
 	PlayerTongue->EndLocation = FVector(100.f, 0.f, 0.f);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	PlayerTongue->CableLength = 50.f;
@@ -267,6 +269,20 @@ void AArmadilloPlatformerCharacter::Swing()
 	swingVector = normalizedSwingVector * FVector::DotProduct(swingVector, GetVelocity()) * -2;
 	
 	GetCharacterMovement()->AddForce(swingVector);
+}
+
+void AArmadilloPlatformerCharacter::IsJumping()
+{
+	bIsJumping = true;
+	Jump();
+
+	if (!bHooked)
+	{
+		PlayerTongue->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		PlayerTongue->CableLength = 0.f;
+	}
+
+	bIsJumping = false;
 }
 
 void AArmadilloPlatformerCharacter::MoveRight(float Value)

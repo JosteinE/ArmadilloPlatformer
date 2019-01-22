@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "../../../Plugins/Runtime/CableComponent/Source/CableComponent/Classes/CableComponent.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "ArmadilloPlatformerCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -99,6 +100,7 @@ public:
 	float maxTongueRange = 1000;
 	bool bLeftMouseBDown;
 	bool bRightMouseBDown;
+	bool bIsJumping;
 	FVector mouseHitLocation;
 
 	//Input Functions
@@ -108,6 +110,7 @@ public:
 	void RightMouseBUp();
 	void ChangeStance();
 	void ChangeCameraPerspective();
+	void IsJumping();
 
 	void Tongue();
 	void Hooked();
